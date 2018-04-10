@@ -1,0 +1,86 @@
+-- Return all the employees
+-- Use MetroAlt;
+-- Select * From Employee;
+-- Return only the last name, first name and emails for all employees
+
+Use MetroAlt;
+Select EmployeeLastName, EmployeeFirstName, EmployeeEmail From Employee;
+
+-- Return all the employees sorted by Last name alphabetically
+
+Use MetroAlt;
+Select * From Employee
+Order by EmployeeLastName DESC;
+
+-- Sort the employees by hire date most recent first
+
+Use MetroAlt;
+Select * From Employee
+Order by EmployeeHireDate DESC;
+
+-- List all the employees who live in Seattle
+
+Use MetroAlt;
+Select * From Employee
+Where EmployeeCity = 'Seattle';
+
+-- List all the employees who do not live in Seattle
+
+Use MetroAlt;
+Select * From Employee
+Where not EmployeeCity = 'Seattle';
+
+-- List the employees who do not have listed phones
+
+Use MetroAlt;
+Select * From Employee
+Where EmployeePhone is null;
+
+-- List only the employees who have phones
+
+Use MetroAlt;
+Select * From Employee
+Where EmployeePhone is not null;
+
+
+-- List all the employees whose last name starts with “c.”
+
+Use MetroAlt;
+Select * From Employee
+Where EmployeeLastName like 'c%';
+
+-- Use the table EmployeePosition
+-- List all the employee keys and their wages sorted by pay from highest to lowest
+
+Use MetroAlt;
+Select EmployeeKey, EmployeeHourlyPayRate From EmployeePosition
+Order by EmployeeHourlyPayRate DESC;
+
+-- List all the employee keys and their hourly wage for those with PositionKey equal to 2 (mechanics)
+
+Use MetroAlt;
+Select EmployeeKey, EmployeeHourlyPayRate From EmployeePosition
+Where PositionKey = '2'
+Order by EmployeeHourlyPayRate DESC;
+
+-- Return the top 10 of the query for question 11
+
+Use MetroAlt;
+Select Top 10 EmployeeKey, EmployeeHourlyPayRate From EmployeePosition
+Where PositionKey = '2'
+Order by EmployeeHourlyPayRate DESC;
+
+-- Using the same query offset by 20 and list 10
+
+Use MetroAlt;
+Select EmployeeKey, EmployeeHourlyPayRate From EmployeePosition
+Where PositionKey = '2'
+Order by EmployeeHourlyPayRate DESC
+Offset 20 rows
+Fetch next 10 rows only;
+
+-- Use the table BusScheduleAssignment
+-- Return the busdriverKey and the busrouteKey but return only distinct rows.
+
+Use MetroAlt;
+Select Distinct BusDriverShiftKey, BusRouteKey From BusScheduleAssignment;
