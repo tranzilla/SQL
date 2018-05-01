@@ -1,5 +1,3 @@
-Tran Duong
-ITC 222 – joins
 --Alias all calculated fields
 --List the years in which employees were hired, sort by year and then last name.
 use MetroAlt;
@@ -7,46 +5,55 @@ select distinct year(employeehiredate) [Year Hire], EmployeeLastName from Employ
 order by [Year Hire] DESC, EmployeeLastName ASC;
 
 --What is the difference in Months between the first employee hired and the last one.
-Use MetroAlt;
 
+Use MetroAlt;
 Select EmployeeFirstName [First Name], EmployeeLastName [Last Name], EmployeeHireDate [HireDate] from Employee
 order by EmployeeHireDate DESC, EmployeeLastName ASC;
 Select DATEDIFF(month,'1995-01-06','2014-12-16') [Months From Last Hire to Presents];
+
 --Output the employee phone number so it looks like (206)555-1234.
 Use MetroAlt;
 
 Select * from Employee
 Select format(Cast(EmployeePhone as bigint),'(000)000-0000') [Employee Phone #] from Employee;
 --Casting allows the format of EmployeePhone to be changed into bigint first.
+
 --Output the employee hourly wage so it looks like $45.00 (EmployeePosition).
 Use MetroAlt;
 Select EmployeeKey, format(EmployeeHourlyPayRate, '$00.00') [Pay Rate] from EmployeePosition;
+
 --List only the employees who were hired between 2013 and 2015.
 Use MetroAlt;
 
 Select EmployeeLastName, EmployeeFirstName, year(employeehiredate) [Hire Year] from Employee
 where year(EmployeeHireDate) between '2013' and '2015'
 order by [Hire Year] DESC;
+
 --Output the position, the hourly wage and the hourly wage multiplied by 40 to see what a weekly wage might look like.
 Use MetroAlt;
 
 Select PositionKey, EmployeeHourlyPayRate, format(EmployeeHourlyPayRate * 40, '$#,000.00') [Weekly Earnings] from EmployeePosition;
+
 --What is the highest hourly pay rate (EmployeePosition)?
 use MetroAlt;
 select Positionkey, max(EmployeeHourlyPayRate) [Highest Hourly Pay] from EmployeePosition
 group by PositionKey
+
 --What is the lowest hourly pay rate? 
 use MetroAlt;
 select Positionkey, min(EmployeeHourlyPayRate) [Lowest Hourly Pay] from EmployeePosition
 group by PositionKey
+
 --What is the average hourly pay rate?
 Use MetroAlt;
 Select Avg(EmployeeHourlyPayRate) [Pay Rate] from EmployeePosition
+
 --What is the average pay rate by position?
 use metroalt;
 
 select avg(EmployeeHourlyPayRate) [Average Pay Rate] from EmployeePosition
 group by PositionKey;
+
 --Provide a count of how many employees were hired each year and each month of the year.
 use metroalt;
 
@@ -80,12 +87,15 @@ use metroalt;
 select positionkey [Position Key], avg(EmployeeHourlyPayRate) [Average] from EmployeePosition
 group by PositionKey
 having avg(employeehourlypayrate) >= '50.00';
+
 --List the total number of riders on Metroalt busses (RiderShip).
 use metroalt;
 select sum(riders) from Ridership;
+
 --List all the tables in the metroAlt databases (system views).
 use metroalt;
 
 Select * from sys.Tables;
+
 --List all the databases on server.
 Select name from sys.Databases;
