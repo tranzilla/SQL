@@ -1,0 +1,60 @@
+--This involves joining tables, then using a subquery. Return the employee key, last name and first name, position name and hourly rate for those employees receiving the maximum pay rate.
+use MetroAlt;
+select e.employeekey, e.employeelastname, e.employeefirstname, p.positionname, ep.employeehourlypayrate from EmployeePosition [ep]
+inner join Position [p]
+on ep.positionkey=p.PositionKey
+inner join Employee [e]
+on e.EmployeeKey=ep.EmployeeKey
+where ep.EmployeeHourlyPayRate =(select max(employeehourlypayrate) from EmployeePosition)
+
+--Use only subqueries to do this. Return the key, last name and first name of every employee who has the position name “manager.”
+use Metroalt;
+
+select employeekey, employeelastname, employeefirstname 
+from Employee
+where EmployeeKey in 
+	(select EmployeeKey from EmployeePosition
+	where positionkey in 
+		(select positionkey from Position
+	where PositionName in ('Manager')))
+  
+--This is very difficult. It combines regular aggregate functions, a scalar function, a cast, subqueries and a join. But it produces a useful result. The results should look like this: User Ridership totals for the numbers.
+ 
+use MetroAlt;
+select distinct year(BusScheduleAssignmentdate)[Year], sum(Riders) [Annual Total],
+(select sum(riders) from Ridership) [Grand Total],
+(select avg(riders) from Ridership) [Annual Avg],
+format(sum(Riders)/(select Sum(riders) from Ridership), '##0.00%') [Percent]
+from BusScheduleAssignment
+inner join Ridership
+on BusScheduleAssignment.BusScheduleAssignmentKey=Ridership.BusScheduleAssigmentKey
+group by year(BusScheduleAssignmentDate)
+
+--Create a new table called EmployeeZ. It should have the following structure: EmployeeKey int, EmployeeLastName nvarchar(255), EmployeeFirstName nvarchar(255), EmployeeEmail Nvarchar(255)
+Use MetroAlt
+
+Create table EmployeeZ
+(
+   employeekey int,
+   employeeLastName nvarchar(255),
+   employeefirstname nvarchar(255),
+   employeeemail nvarchar(255)
+)
+
+--Use an insert with a subquery to copy all the employees from the employee table whose last name starts with “Z.”
+Insert into EmployeeZ
+Select EmployeeKey, EmployeeLastName,
+employeefirstname, employeeemail
+From Employee
+where EmployeeLastName like 'Z%'
+
+--This is a correlated subquery. Return the position key, the employee key and the hourly pay rate for those employees who are receiving the highest pay in their positions. Order it by position key.
+Use MetroAlt;
+
+Select PositionKey, EmployeeKey, Employeehourlypayrate
+From EmployeePosition ep1
+Where employeehourlypayrate = 
+(Select max(EmployeeHourlyPayRate)
+from EmployeePosition ep2
+Where ep1.PositionKey=ep2.PositionKey)
+order by PositionKey
