@@ -1,0 +1,137 @@
+--Create a derived table that returns the position name as position and count of employees at that position. (I know that this can be done as a simple join, but do it in the format of a derived table. There still will be a join in the subquery portion).
+
+Use MetroAlt;
+
+Select Position, EmployeeNumbers
+from 
+	(select positionname [position], count(Employeekey) [EmployeeNumbers] 
+	from Position p
+	inner join EmployeePosition ep
+	on p.PositionKey=ep.PositionKey
+	group by PositionName) EmployeesPerPosition
+
+--Create a derived table that returns a column HireYear and the count of employees who were hired that year. (Same comment as above).
+Use MetroAlt
+
+Select HireYear, NumberOfEmployees
+from 
+(select distinct year(employeehiredate) [hireyear], count(e.EmployeeKey) [NumberOfEmployees] 
+	from Employee e
+	inner join EmployeePosition ep
+	on e.employeekey=ep.EmployeeKey
+group by year(EmployeeHireDate)) EmployeePerYear
+--Redo problem 1 as a Common Table Expression (CTE).
+with EmployeePerPosition as
+(
+	select positionname [position], count(Employeekey) [EmployeeNumbers] 
+	from Position p
+	inner join EmployeePosition ep
+	on p.PositionKey=ep.PositionKey
+	group by PositionName
+)
+select position, EmployeeNumbers
+from employeeperposition
+
+--Redo problem 2 as a CTE.
+
+with employeePerYear as
+(
+select distinct year(employeehiredate) [hireyear], count(e.EmployeeKey) [NumberOfEmployees] 
+	from Employee e
+	inner join EmployeePosition ep
+	on e.employeekey=ep.EmployeeKey
+	group by year(EmployeeHireDate)
+)
+Select HireYear, NumberOfEmployees
+from employeePerYear
+
+--Create a CTE that takes a variable argument called @BusBarn and returns the count of busses grouped by the description of that bus type at a particular Bus barn. Set @BusBarn to 3.
+declare @busbarn nvarchar(255)
+set @busbarn='3';
+
+with BusCount as
+(
+	select bustypedescription[BusType], count(busbarnkey) [NumberOfBuses] 
+	from Bustype bt
+	inner join bus b
+	on bt.BusTypeKey=b.BusTypekey
+	where busbarnkey=@busbarn
+	group by BusTypeDescription
+)
+Select BusType, NumberOfBuses
+from buscount
+
+--Create a View of Employees for Human Resources it should contain all the information in the Employee table plus their position and hourly pay rate
+create view vw_Employees
+As
+select employeelastname [Last Name],
+ employeefirstname [First Name],
+ employeeaddress [Address], 
+ employeecity [City], 
+ employeezipcode [Zipcode], 
+ employeephone [Phone Number], 
+ employeeemail [Email], 
+ employeehiredate [Hire Date], 
+ PositionName [Position], 
+ employeehourlypayrate [Pay Rate]
+ from Employee e
+ inner join EmployeePosition ep
+ on e.EmployeeKey=ep.EmployeeKey
+ inner join Position p
+ on ep.PositionKey=p.PositionKey
+--Alter the view in 6 to bind the schema
+alter view vw_Employees with schemabinding
+As
+select employeelastname [Last Name],
+ employeefirstname [First Name],
+ employeeaddress [Address], 
+ employeecity [City], 
+ employeezipcode [Zipcode], 
+ employeephone [Phone Number], 
+ employeeemail [Email], 
+ employeehiredate [Hire Date], 
+ PositionName [Position], 
+ employeehourlypayrate [Pay Rate]
+ from dbo.Employee e
+ inner join dbo.EmployeePosition ep
+ on e.EmployeeKey=ep.EmployeeKey
+ inner join dbo.Position p
+ on ep.PositionKey=p.PositionKey
+ 
+--Create a view of the Bus Schedule assignment that returns the Shift times, The Employee first and last name, the bus route (key) and the Bus (key). Use the view to list the shifts for Neil Pangle in October of 2014
+create view vw_BusScheduleAssignment
+As
+select employeelastname [Last Name],
+ employeefirstname [First Name],
+ busdrivershiftstarttime [Shift Start], 
+ busdrivershiftstoptime [Shift Stop],
+ BusScheduleAssignmentdate [Assigned Date],
+ BusRouteKey [Bus Route],
+ BusTypeDescription [Bus]
+ from Employee e
+ inner join BusScheduleAssignment bsa
+ on e.EmployeeKey=bsa.EmployeeKey
+ inner join BusDriverShift bds
+ on bsa.BusDriverShiftKey=bds.BusDriverShiftKey
+ inner join Bus b
+ on bsa.buskey=b.buskey
+ inner join Bustype bt
+ on b.BusTypekey=bt.BusTypeKey
+
+ select * from vw_BusScheduleAssignment
+ where [Last Name] = 'Pangle' 
+ and [First Name]= 'Neil' 
+ and month([Assigned Date])= '10' 
+ and year([Assigned Date])='2014'
+ 
+--Create a table valued function that takes a parameter of city and returns all the employees who live in that city
+go
+Create Function fx_City(@City nvarchar(255))
+Returns table
+As
+return
+Select EmployeeLastName lastname, 
+EmployeeFirstName firstname, 
+EmployeeCity City
+From employee 
+Where EmployeeCity=@city
