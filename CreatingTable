@@ -1,0 +1,78 @@
+-- Use metro Alt; Add the following tables to metroAlt with the following columns and constraints
+--BusService
+--BusServiceKey int identity primary key
+--BusServiceName variable character, required
+--BusServiceDescription variable character
+
+use metroalt;
+create table BusService
+(
+	BusServiceKey int identity(1,1) primary key,
+	BusServiceName varchar(255) not null,
+	BusServiceDescription varchar(255)
+)
+
+--Maintenance
+--MaintenanceKey int, an identity, primary key
+--MainenanceDate Date, required
+--Buskey int foreign key related to Bus, required
+
+use MetroAlt;
+create table Maintenance 
+(
+	MaintenanceKey int identity(1,1),
+	MaintenanceDate Date not null,
+	Buskey int foreign key references Bus(Buskey) not null,
+	constraint PK_Maintenance primary key(MaintenanceKey)
+)
+
+--MaintenanceDetail (we will use Alter table statements to add Keys to this table)
+--MaintenanceDetailKey int identity 
+--Maintenancekey int  required
+--EmployeeKey int  required
+--BusServiceKey int  required
+--MaintenanceNotes  variable character
+
+use MetroAlt;
+
+create table MaintenanceDetail
+(
+	MaintenanceDetailKey int identity(1,1),
+	MaintenanceKey int not null,
+	EmployeeKey int not null,
+	BusServiceKey int not null,
+	MaintenanceNotes varchar null
+)
+
+--Use alter table to add a primary key constraint to Maintenance detail setting MaintenanceDetailKey as the primary key
+
+alter table MaintenanceDetail
+add constraint PK_MaintenanceDetail primary key(MaintenanceDetailKey)
+
+--Use alter table to set MaintenceKey as a foreign key
+
+alter table MaintenanceDetail
+add constraint FK_MaintenanceKey foreign key(MaintenanceKey)
+references Maintenance(MaintenanceKey)
+
+--Use alter table to set EmployeeKey as a foreign key
+
+alter table MaintenanceDetail
+add constraint FK_EmployeeKey foreign key(EmployeeKey)
+references Employee(EmployeeKey)
+
+--Use alter table to set BusServiceKey as a foreign key
+
+alter table MaintenanceDetail
+add constraint FK_BusServiceKey foreign key(BusServiceKey)
+references BusService(BusServiceKey)
+
+--Add a column to BusType named BusTypeAccessible. Its data type should be bit 0 for no and 1 for yes.
+
+alter table bustype
+add BusTypeAccessible bit
+
+--Use alter table to Add a constraint to email in the Employee table to make sure each email is unique
+
+alter table employee
+add constraint EmployeeEmail unique(EmployeeEmail)
