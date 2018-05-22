@@ -1,0 +1,68 @@
+--Create a temp table to show how many stops each route has. the table should have fields for the route number and the number of stops. Insert into it from BusRouteStops and then select from the temp table.
+
+use metroalt;
+
+create table #TempBusStops
+(
+	RouteKey int,
+	NumberofStops int
+)
+
+insert into #TempBusStops (RouteKey, NumberofStops)
+select Busroutekey, sum(busroutestopkey) [Number of Stops]
+from BusRouteStops
+group by BusRouteKey
+order by BusRouteKey
+
+--Do the same but using a global temp table.
+
+use metroalt;
+
+create table ##GlobalTempBusStops
+(
+	RouteKey int,
+	NumberofStops int
+)
+
+insert into ##GlobalTempBusStops (RouteKey, NumberofStops)
+select Busroutekey, sum(busroutestopkey) [Number of Stops]
+from BusRouteStops
+group by BusRouteKey
+order by BusRouteKey
+
+--Create a function to create an employee email address. Every employee Email follows the pattern of firstName.lastName@metroalt.com
+
+create function fx_email(@employeelastname nvarchar(255), @employeefirstname nvarchar(255))
+returns nvarchar(255)
+as 
+begin
+declare @email nvarchar 
+set @email = @employeefirstname + '.' + @employeelastname +'@metroalt.com'
+return @email
+end
+go
+
+--Create a function to determine a two week pay check of an individual employee.
+
+create function fx_biweeklypay(@EmployeePay money)
+returns money
+as 
+begin
+declare @biweekly money
+set @biweekly = @EmployeePay * 80
+return @biweekly
+end
+go
+--**This is assuming the employee is full-time working 40 hours/week**
+
+--Create a function to determine a hourly rate for a new employee. Take difference between top and bottom pay for the new employees position (say driver) and then subtract the difference from the maximum pay. (and yes this is very arbitrary).
+
+create function fx_newemployeepayrate(@hourlyrate money)
+returns money
+as 
+begin
+declare @newpayrate money
+set @newpayrate = max(@hourlyrate) - (max(@hourlyrate) - min(@hourlyrate))
+return @newpayrate
+end
+go
