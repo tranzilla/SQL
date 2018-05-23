@@ -1,0 +1,122 @@
+/* Creating a Stored Procedure - Adding a new person
+First: add a new person to person table
+second: add address to personaddress 
+third: add contact to contact */
+
+--create a procedure called usp_NewPerson
+use Community_Assist;
+go
+create proc usp_NewPerson
+--Add the parameters and data types
+@PersonLastName nvarchar(255),
+@PersonFirstName nvarchar(255),
+@PersonEmail nvarchar(255),
+@PassWord nvarchar(255),
+@PersonAddressApt nvarchar(255)=null,
+@PersonAddressStreet nvarchar(255),
+@PersonAddressCity nvarchar(255)='Seattle',
+@PersonAddressState nchar(2)='WA',
+@PersonAddressZip nchar(12),
+@HomePhone nvarchar(255)=null,
+@WorkPhone nvarchar(255)=null
+--Must use 'AS' to delcare the variable
+AS
+declare @seed int
+declare @hash varbinary(500)
+set @seed=dbo.fx_GetSeed()
+set @hash=dbo.fx_HashPassword(@seed, @PassWord)
+--insert into Person
+insert into Person([PersonLastName], [PersonFirstName], [PersonEmail], [PersonPassWord], [PersonEntryDate], [PersonPassWordSeed])
+values(@PersonLastName, @PersonFirstName, @PersonEmail, @hash, GetDate(), @seed)
+--inset into personkey as the most recent
+declare @key int
+set @key=IDENT_CURRENT('Person')
+--insert into person address
+insert into PersonAddress([PersonAddressApt], [PersonAddressStreet], [PersonAddressCity], [PersonAddressState], [PersonAddressZip], [PersonKey])
+Values(@PersonAddressApt, @PersonAddressStreet, @PersonAddressCity, @PersonAddressState, @PersonAddressZip, @key)
+--insert into contact
+declare @homekey int 
+declare @workkey int
+select @homekey=ContactTypeKey from ContactType where ContactTypeName = 'Home Phone'
+select @workkey=ContactTypeKey from ContactType where ContactTypeName = 'Work Phone'
+if @HomePhone is not null 
+begin
+	insert into Contact([ContactNumber], [ContactTypeKey], [PersonKey])
+	values(@HomePhone, @homekey, @key)
+end
+if @WorkPhone is not null 
+begin
+	insert into Contact([ContactNumber], [ContactTypeKey], [PersonKey])
+	values(@WorkPhone, @workkey, @key)
+end
+
+--adding a new person using the stored procedure
+exec usp_NewPerson
+@PersonLastName = 'Miller',
+@PersonFirstName = 'John', 
+@PersonEmail = 'John.Miller@gmail.com', 
+@PassWord = 'MillerPass', 
+@PersonAddressStreet = 'Space Cowboy Street',
+@PersonAddressZip = '98109', 
+@HomePhone = '206-555-5555'
+
+--test to see if the data was inserted correctly
+select * from Person
+
+
+----add a try catch and transactions
+go
+Alter proc usp_NewPerson
+--Add the parameters and data types
+@PersonLastName nvarchar(255),
+@PersonFirstName nvarchar(255),
+@PersonEmail nvarchar(255),
+@PassWord nvarchar(255),
+@PersonAddressApt nvarchar(255)=null,
+@PersonAddressStreet nvarchar(255),
+@PersonAddressCity nvarchar(255)='Seattle',
+@PersonAddressState nchar(2)='WA',
+@PersonAddressZip nchar(12),
+@HomePhone nvarchar(255)=null,
+@WorkPhone nvarchar(255)=null
+--Must use 'AS' to delcare the variable
+AS
+declare @seed int
+declare @hash varbinary(500)
+set @seed=dbo.fx_GetSeed()
+set @hash=dbo.fx_HashPassword(@seed, @PassWord)
+--insert into Person
+--Begin Transaction
+begin tran
+begin try
+insert into Person([PersonLastName], [PersonFirstName], [PersonEmail], [PersonPassWord], [PersonEntryDate], [PersonPassWordSeed])
+values(@PersonLastName, @PersonFirstName, @PersonEmail, @hash, GetDate(), @seed)
+--inset into personkey as the most recent
+declare @key int
+set @key=IDENT_CURRENT('Person')
+--insert into person address
+insert into PersonAddress([PersonAddressApt], [PersonAddressStreet], [PersonAddressCity], [PersonAddressState], [PersonAddressZip], [PersonKey])
+Values(@PersonAddressApt, @PersonAddressStreet, @PersonAddressCity, @PersonAddressState, @PersonAddressZip, @key)
+--insert into contact
+declare @homekey int 
+declare @workkey int
+select @homekey=ContactTypeKey from ContactType where ContactTypeName = 'Home Phone'
+select @workkey=ContactTypeKey from ContactType where ContactTypeName = 'Work Phone'
+if @HomePhone is not null 
+begin
+	insert into Contact([ContactNumber], [ContactTypeKey], [PersonKey])
+	values(@HomePhone, @homekey, @key)
+end
+if @WorkPhone is not null 
+begin
+	insert into Contact([ContactNumber], [ContactTypeKey], [PersonKey])
+	values(@WorkPhone, @workkey, @key)
+end
+commit tran
+end try
+begin catch 
+rollback tran
+print error_message()
+end catch
+
+
