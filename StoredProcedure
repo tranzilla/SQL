@@ -33,6 +33,7 @@ create proc usp_UpdateEmployee
 @EmployeePhone nvarchar(10)=null,
 @EmployeeKey int
 as 
+begin try
 update Employee
 set EmployeeLastName=@EmployeeLastName,
 EmployeeFirstName=@EmployeeFirstName,
@@ -41,3 +42,4 @@ EmployeeCity = @EmployeeCity,
 EmployeeZipCode=@EmployeeZipCode,
 EmployeePhone =@EmployeePhone 
 where EmployeeKey = @EmployeeKey
+end try
