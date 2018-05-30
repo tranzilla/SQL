@@ -43,3 +43,6 @@ EmployeeZipCode=@EmployeeZipCode,
 EmployeePhone =@EmployeePhone 
 where EmployeeKey = @EmployeeKey
 end try
+Begin Catch
+print error_message()
+End catch
