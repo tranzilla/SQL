@@ -1,0 +1,48 @@
+Create xml Schema Collection MaintenanceNoteSchemaCollection
+As
+'<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" 
+           elementFormDefault="qualified" 
+           targetNamespace="http://www.metroalt.com/maintenancenote" 
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="maintenancenote">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="title" />
+        <xs:element name="note">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="p" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="followup" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>'
+Create table MaintenanceDetail
+(
+     maintenanceDetailKey int identity(1,1) primary key,
+  maintenanceNotes nvarchar(255)
+
+)
+
+Alter table MaintenanceDetail
+Drop column MaintenanceNotes
+
+Alter table MaintenanceDetail
+add MaintenanceNotes xml (MaintenanceNoteSchemaCollection)
+
+Insert into maintenanceDetail(maintenanceNotes)
+values('<?xml version="1.0" encoding="utf-8"?>
+<maintenancenote xmlns="http://www.metroalt.com/maintenancenote">
+  <title>Wear and Tear on Hydralic units</title>
+<note>
+  <p>The hydralic units are showing signs of stress</p>
+  <p>I recommend the replacement of the units</p>
+</note>
+  <followup>Schedule replacement for June 2016</followup>
+</maintenancenote>')
+
+Select * from MaintenanceDetail
