@@ -1,0 +1,31 @@
+Select * from Busbarn for JSON auto
+Select BusBarnKey, Busbarnphone, busBarnAddress as 'address.street', 
+Busbarncity as 'address.city', BusBarnZipcode as 'address.zipcode'
+from Busbarn for JSON Path
+
+Alter Database MetroAlt set compatibility_Level=130
+
+Declare @JSON nvarchar(max)
+Set @JSON='{"_id" : 1, "product": "IPad", "price" : 894.50, "quantityAvailable" : 13}'
+Select * from OpenJSon(@JSON)
+
+Declare @products nvarchar(max)
+Set @products='[
+    {"_id" : 1, "product": "IPad", "price" : 894.50, "quantityAvailable" : 13},
+    {"_id" : 2, "product": "Chrome Book", "price" : 245.99, "quantityAvailable": 23},
+    {"_id" : 3, "product": "Bose Lap Top Speakers", "price" : 89.50, "quantityAvailable" : 10},
+    {"_id" : 4, "product": "Blue Tooth Game Controller", "price" : 149.99, "quantityAvailable" : 3},
+    {"_id" : 5, "product": "Star Wars Mouse Pad", "price" : 1.50, "quantityAvailable" : 100},
+    {"_id" : 6, "product": "Dell XPS Desk Top Computer", "price" : 945.00, "quantityAvailable" : 7},
+    {"_id" : 7, "product": "Microsoft Surface Pro", "price" : 1250.75, "quantityAvailable" : 9},
+    {"_id" : 8, "product": "Norton Anti Virus", "price" : 75.50, "quantityAvailable": 2},
+    {"_id" : 9, "product": "Mechanical Keyboard", "price" : 125.50, "quantityAvailable" : 3},
+    {"_id" : 10, "product": "Android Tablet", "price" : 345.23, "quantityAvailable" : 5}
+  ]'
+  Select * from OpenJson(@products)
+  with (
+    id int '$._id',
+ product nvarchar(255) '$.product',
+ price decimal(8,2) '$.price',
+ quantity int '$.quantityAvailable'
+ )
