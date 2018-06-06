@@ -1,0 +1,34 @@
+use MetroAlt;
+go
+create trigger tr_checkOverTime on BusScheduleAssignment
+after insert
+as
+--Check to see if a there is already an Overtime Table
+if not exists
+ (select name from sys.tables where name='Overtime')
+ --If not, create a table name Overtime
+begin
+	create table OverTime 
+		(
+			Employeekey int,
+			BusDriverShiftKey int,
+			BusScheduleAssignmentDate date,
+			BusShiftCount int,
+		)
+end
+--Declare the variables
+declare @EmployeeKey int
+declare @BusShiftKey int
+declare @Date date
+declare @BusShiftCount int
+--Set the variables 
+select @EmployeeKey=Employeekey, @BusShiftKey=BusDriverShiftKey, @Date=BusScheduleAssignmentDate 
+from inserted
+
+Select @BusShiftCount=count(BusDriverShiftKey) 
+from BusScheduleAssignment
+where BusScheduleAssignmentDate = @Date
+and EmployeeKey = @EmployeeKey
+
+insert into OverTime(employeekey, BusDriverShiftKey, BusScheduleAssignmentDate, BusShiftCount)
+Values(@EmployeeKey, @BusShiftKey, @Date, @BusShiftCount)
