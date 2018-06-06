@@ -1,0 +1,37 @@
+Use MetroAlt
+go
+
+Create schema Management
+
+Go
+Create view Management.vw_AnnualRidership
+As
+Select year(BusscheduleAssignmentDate) [Year],
+Count(riders) Total
+From BusScheduleAssignment bs
+inner join Ridership r
+on r.BusScheduleAssigmentKey=bs.BusScheduleAssignmentKey
+Group by year(BusscheduleAssignmentDate)
+go
+
+Create view Management.vw_EmployeeInfo
+As
+Select EmployeeFirstName, EmployeeLastName, EmployeeEmail,
+PositionName, EmployeeHourlyPayRate
+From Employee e
+inner join EmployeePosition ep
+on e.EmployeeKey=ep.EmployeeKey
+inner join Position p
+on p.PositionKey=ep.PositionKey
+Go
+
+Create role ManagementRole
+Grant Select on Schema::Management to ManagementRole
+Grant Select, Insert, update on Employee to ManagementRole
+Grant Select, Insert, Update on EmployeePosition to Managementrole
+
+Create login managementLogin with password='P@ssw0rd1', default_database=MetroAlt
+Use MetroAlt
+Create user managementUser for login managementLogin 
+Alter role managementrole add member managementUser
+Backup Database MetroAlt to disk='C:\backup\MetroAlt.bak'
