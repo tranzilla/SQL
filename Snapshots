@@ -1,0 +1,30 @@
+--create a snapshot for MetroAlt 
+use master;
+
+create database MetroAlt_Snapshot
+on 
+(name ='MetroAlt', filename='C:\Program Files\Microsoft SQL Server\MSSQL14.ITC226SERVER\MSSQL\DATA\MetroAlt_Snapshot.ds')
+as 
+snapshot of MetroAlt 
+
+--add new employee and update an exisiting employee and compare data with snapshot
+use MetroAlt;
+update Employee
+set EmployeeLastName = 'Quirky'
+where EmployeeKey = 501
+
+insert into Employee 
+([EmployeeLastName], 
+[EmployeeFirstName], 
+[EmployeeAddress], 
+[EmployeeCity], 
+[EmployeeZipCode], 
+[EmployeePhone], 
+[EmployeeEmail], 
+[EmployeeHireDate])
+values ('Quirk', 'Sandra', '888 Queen Anne Ave','Seattle', '98109','5555555555', 'sandra.quirk@example.com', getdate())
+
+select * from Employee
+
+-- The MetroAlt snapshot will only captured the data when it was created and will not show any of the data that was just added. The update on EmployeeKey = 501 
+-- and the added employeekey = 502 will not be reflected in the MetroAlt_snapshot but it will be in MetroAlt database. 
