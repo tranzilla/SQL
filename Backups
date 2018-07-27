@@ -1,0 +1,58 @@
+--Full Backup 
+Backup Database MetroAlt 
+to Disk='C:\backups\MetroAlt.bak' 
+
+--full backup with expiration dates
+Backup Database MetroAlt 
+to Disk='C:\backups\MetroAlt.bak' 
+with expiredate ='07/28/2018'
+
+--add new employee and perform differential (partial) backup
+insert into Employee 
+([EmployeeLastName], 
+[EmployeeFirstName], 
+[EmployeeAddress], 
+[EmployeeCity], 
+[EmployeeZipCode], 
+[EmployeePhone], 
+[EmployeeEmail], 
+[EmployeeHireDate])
+values('Quirk', 'Jammy', '345 Queen Anne Ave','Seattle', '98109','2065555555', 'jammy.quirk@example.com', getdate())
+
+select * from Employee
+where EmployeeLastName = 'Quirk'
+
+Backup database MetroAlt 
+to Disk ='C:\backups\MetroAlt.bak'
+with Differential
+
+--Add another new employee and backup Log
+insert into Employee 
+([EmployeeLastName], 
+[EmployeeFirstName], 
+[EmployeeAddress], 
+[EmployeeCity], 
+[EmployeeZipCode], 
+[EmployeePhone], 
+[EmployeeEmail], 
+[EmployeeHireDate])
+values ('Quirk', 'William', '789 Queen Anne Ave','Seattle', '98109','7204444444', 'william.quirk@example.com', getdate())
+
+backup log MetroAlt
+to Disk ='C:\backups\MetroAlt.log'
+
+use master
+--restore the database full backup
+restore database MetroAlt 
+from Disk ='C:\backups\MetroAlt.bak'
+with norecovery, file = 1
+
+--restore the database partial backup
+restore database MetroAlt 
+from Disk ='C:\backups\MetroAlt.bak'
+with norecovery, file = 2
+
+--restore the log
+restore log MetroAlt
+from Disk ='C:\backups\MetroAlt.log'
+with recovery
