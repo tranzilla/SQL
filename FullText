@@ -1,0 +1,72 @@
+--Full Text example taken from Steve Conger 
+Use Master
+Create Database FullTextExample
+
+Alter Database FullTextExample
+Add FileGroup FullTextCatalog
+
+use FulltextExample
+
+Create Table TextTable
+(
+    TextTableKey int identity(1,1) primary key,
+ TextExample nvarchar(255)
+)
+
+Insert into TextTable(TextExample)
+Values('For test to be successful we must have a lot of text'),
+('The test was not successful. sad face'),
+('there is more than one test that can try a man'),
+('Success is a relative term'),
+('It is a rare man that is always successful'),
+('The root of satisfaction is sad'),
+('men want success'),
+('We successfully completed the test'),
+('Sadly, the test was difficult')
+
+Insert into TextTable(TextExample)
+Values('Best not to rest on ones successes'),
+('The test is complete')
+
+ 
+Create fulltext catalog TestDescription
+on FileGroup FullTextCatalog
+
+Create Fulltext index on TextTable(TextExample)
+Key index [PK__TextTabl__B25F440D6815A9C6]
+on TestDescription
+with change_tracking auto
+
+Select textTableKey, TextExample from TextTable
+Where Freetext(textExample, 'sad')
+
+Select TexttableKey, TextExample 
+From TextTable
+Where FreeText(TextExample, 'successful')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, '"success"')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, '"success*"')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, ' Formsof (Inflectional, Man)')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, ' Formsof (Inflectional, Complete)')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, ' near (try, man)')
+
+Select TextTableKey, TextExample
+From TextTable
+Where Contains(TextExample, ' near ((man, successful), 2)')
+
+select * from sys.dm_fts_index_keywords (db_id(),object_id('TextTable'))
+order by Document_count desc
